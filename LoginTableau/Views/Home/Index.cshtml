@@ -1,31 +1,99 @@
-﻿@{
+﻿@model LoginTableau.ViewModel.UsuarioLoginViewModel
+@{
     ViewBag.Title = "Home Page";
 }
+<div class="limiter">
+    <div class="container-login100">
+        <div class="wrap-login100">
+            <div class="login100-pic js-tilt" data-tilt>
+                <img src="~/Personalizado/images/img-01.png" alt="img" />
+            </div>
 
-<div class="jumbotron">
-    <h1>ASP.NET</h1>
-    <p class="lead">ASP.NET is a free web framework for building great Web sites and Web applications using HTML, CSS and JavaScript.</p>
-    <p><a href="https://asp.net" class="btn btn-primary btn-lg">Learn more &raquo;</a></p>
-</div>
+            @using (Html.BeginForm(null, null, FormMethod.Post, new { @class = "login100-form validate-form", @id = "formularioLogin" }))
+            {
+                @Html.AntiForgeryToken()
+                @Html.ValidationSummary(true, "", new { @class= "validate-input" })
+                <span class="login100-form-title">
+                    Inicio Sesión
+                </span>
 
-<div class="row">
-    <div class="col-md-4">
-        <h2>Getting started</h2>
-        <p>
-            ASP.NET MVC gives you a powerful, patterns-based way to build dynamic websites that
-            enables a clean separation of concerns and gives you full control over markup
-            for enjoyable, agile development.
-        </p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301865">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Get more libraries</h2>
-        <p>NuGet is a free Visual Studio extension that makes it easy to add, remove, and update libraries and tools in Visual Studio projects.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301866">Learn more &raquo;</a></p>
-    </div>
-    <div class="col-md-4">
-        <h2>Web Hosting</h2>
-        <p>You can easily find a web hosting company that offers the right mix of features and price for your applications.</p>
-        <p><a class="btn btn-default" href="https://go.microsoft.com/fwlink/?LinkId=301867">Learn more &raquo;</a></p>
+                <div class="wrap-input100 validate-input" data-validate="Usuario requerido">
+                    @Html.EditorFor(q => q.nombre_usuario, new { @htmlAttributes = new { @class = "input100", @name = "email", @placeholder = "Usuario", @autofocus = "autoficus", @autocomplete = "off" } })
+                    @Html.ValidationMessageFor(q=>q.nombre_usuario, "", new { @class= "validate-input" })
+                    <span class="focus-input100"></span>
+                    <span class="symbol-input100">
+                        <i class="fa fa-envelope" aria-hidden="true"></i>
+                    </span>
+                </div>
+
+                <div class="wrap-input100 validate-input" data-validate="Es requerido">
+                    @Html.EditorFor(q => q.contraseña, new { @htmlAttributes = new { @class = "input100", @name = "pass", @placeholder = "Contraseña", @type = "password", @autocomplete = "off" } })
+                    @Html.ValidationMessageFor(q => q.contraseña, "", new { @class = "validate-input" })
+                    <span class="focus-input100"></span>
+                    <span class="symbol-input100">
+                        <i class="fa fa-lock" aria-hidden="true"></i>
+                    </span>
+                </div>
+
+                <div class="container-login100-form-btn">
+                    <button class="login100-form-btn" type="button" id="btnEnviar">
+                        Iniciar sesión
+                    </button>
+                </div>
+
+                <div class="text-center p-t-12">
+                    <span class="txt1">
+                        Forgot
+                    </span>
+                    <a class="txt2" href="#">
+                        Username/Password?
+                    </a>
+                </div>
+            }
+        </div>
     </div>
 </div>
+@section scripts{
+    <script>   
+        $(document).ready(function () {
+            toastr.options = {
+                "progressBar": true
+            }
+            toastr.info('Pagina cargada con exito!');
+
+            $('#btnEnviar').click(function () {
+                if ($('#formularioLogin').valid()) {
+                    peticion();
+                }
+            });
+
+            function peticion() {
+                var formData = getDataForm();
+                $.ajax({
+                    type: "POST",
+                    url: '@Url.Action("Index", "Home")',
+                    data: formData,
+                    dataType: 'json',
+                    contentType: false,
+                    processData: false,
+                    succes: function (response) {
+                        muestraMensajes(response);
+                    },
+                    error: function (error) {
+                        toastr.error("Error al procesar la solicitud");
+                    }
+                })
+            }
+
+            var getDataForm = function () {
+                var form = $('formularioLogin');
+                var token = $('input[name="__RequestVerificationToken"]', form).val();
+                var formData = new FormData();
+                formData.append("__RequestVerificationToken", token);
+                formData.append("nombre_usuario", $('#sNombreUsuario').val());
+                formData.append("contraseña", $('#contraseña').val());
+            }
+        });
+        
+    </script>
+}
